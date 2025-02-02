@@ -37,7 +37,7 @@ docker compose up
 with `-d` if you are brave enough 😄
 
 > [!WARNING]
-> Wait some time after the containers are started to finish the installation. The whole process may take ~20-30 few minutes. Stable diffusion should be last, so you can check the logs with `docker logs -f sdiff` for the last few lines: 
+> Wait some time after the containers are started to finish the installation. The whole process may take up to ~20-30 minutes. Stable diffusion should be last, so you can check the logs with `docker logs -f sdiff` for the last few lines: 
 > ```bash
 > sdiff  | Applying attention optimization: Doggettx... done.
 > sdiff  | Model loaded in 6.3s (calculate hash: 2.6s, create model: 2.3s, apply weights to model: 1.0s, calculate empty prompt: 0.2s).
