@@ -1,0 +1,85 @@
+services:
+  ollama:
+    container_name: ollama
+    image: ollama/ollama
+    user: "${UID}:${GID}"
+    volumes:
+      # ROOT USER PATH: /root/.ollama
+      - ./ollama-data:/.ollama
+    ports:
+      - "11434:11434"
+    pull_policy: always
+    tty: true
+    restart: no
+    # NVIDIA GPU support
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities:
+                - gpu
+
+  webui:
+    container_name: webui
+    env_file:
+        - ./.env
+    depends_on:
+      - ollama
+    image: ghcr.io/open-webui/open-webui:cuda
+    build:
+      context: .
+      args:
+        OLLAMA_BASE_URL: '/ollama'
+        UID: ${UID}
+        GID: ${GID}
+      dockerfile: Dockerfile-webui
+    volumes:
+      - ./webui-data:/app/backend/data
+    ports:
+      - "3001:8080"
+    environment:
+      - 'OLLAMA_BASE_URL=http://ollama:11434'
+      - 'WEBUI_SECRET_KEY='
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: no
+    # NVIDIA GPU support
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities:
+                - gpu
+
+  sdiff:
+    container_name: sdiff
+    env_file:
+      - ./.env
+    build:
+      context: .
+      dockerfile: Dockerfile-sdiff
+      args:
+        uid: ${UID}
+        gid: ${GID}
+    ports:
+      - "7860:7860"
+    expose:
+      - 7860:7860
+    restart: no
+    volumes:
+      - ./sdiff-data/models:/stable-diffusion-webui/models
+      - ./sdiff-data/outputs:/stable-diffusion-webui/outputs
+    tty: true
+    # NVIDIA GPU support
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities:
+                - gpu
